@@ -6,7 +6,7 @@
     <title>FITRACK</title>
     <!-- Fonts, Icons, Charts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=zip" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         /* ---------- CSS variables for light & dark modes ---------- */
@@ -21,6 +21,9 @@
             --text-muted: #5f6b7a;
             --icon-accent: #3b82f6;
             --icon-orange: #f97316;
+            --icon-green: #10b981;
+            --icon-red: #ef4444;
+            --icon-yellow: #f59e0b;
             --nav-inactive: #64748b;
             --nav-active-bg: #0f172a;
             --nav-active-text: white;
@@ -29,6 +32,7 @@
             --input-focus: #3b82f6;
             --progress-bg: #e9eef3;
             --progress-fill: #0f172a;
+            --progress-burn: #10b981;
             --calendar-bg: #f1f5f9;
             --calendar-workout-bg: #0f172a;
             --calendar-workout-text: white;
@@ -54,6 +58,9 @@
             --text-muted: #94a3b8;
             --icon-accent: #60a5fa;
             --icon-orange: #fb923c;
+            --icon-green: #34d399;
+            --icon-red: #f87171;
+            --icon-yellow: #fbbf24;
             --nav-inactive: #94a3b8;
             --nav-active-bg: #3b82f6;
             --nav-active-text: #ffffff;
@@ -62,6 +69,7 @@
             --input-focus: #60a5fa;
             --progress-bg: #334155;
             --progress-fill: #60a5fa;
+            --progress-burn: #34d399;
             --calendar-bg: #334155;
             --calendar-workout-bg: #60a5fa;
             --calendar-workout-text: #0f172a;
@@ -508,6 +516,14 @@
             transition: width 0.3s ease;
         }
 
+        .progress-burn-fill {
+            background: var(--progress-burn);
+            height: 10px;
+            border-radius: 30px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
         /* Calendar - clean grid */
         .cal-weekdays {
             display: grid;
@@ -567,13 +583,10 @@
             border: 2px solid var(--entry-border);
         }
 
-        /* Tip card */
-        #tipCard {
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        #tipCard:active {
-            background: var(--entry-bg);
+        /* Tip card - now just displays the daily tip */
+        .tip-card {
+            background: var(--bg-card);
+            border-left: 4px solid var(--icon-accent);
         }
 
         /* Month navigation */
@@ -597,7 +610,7 @@
             background: var(--entry-bg);
         }
 
-        /* Calorie limit display */
+        /* Limit displays */
         .limit-display {
             font-size: 1.2rem;
             font-weight: 700;
@@ -608,6 +621,53 @@
             background: var(--entry-bg);
             border-radius: 2rem;
             border: 2px solid var(--entry-border);
+        }
+
+        /* Net calories display */
+        .net-calories {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--icon-green);
+            text-align: center;
+            padding: 0.5rem;
+            background: var(--entry-bg);
+            border-radius: 2rem;
+            border: 2px solid var(--border-light);
+            margin-top: 0.5rem;
+        }
+
+        /* Progress summary cards */
+        .progress-status {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+        .status-good {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--icon-green);
+            border: 2px solid var(--icon-green);
+        }
+        .status-average {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--icon-yellow);
+            border: 2px solid var(--icon-yellow);
+        }
+        .status-poor {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--icon-red);
+            border: 2px solid var(--icon-red);
+        }
+        .advice-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--entry-bg);
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-light);
         }
 
         /* Small screen adjustments */
@@ -671,33 +731,36 @@
         </div>
     </div>
 
-    <!-- navigation -->
+    <!-- navigation - now includes Progress page -->
     <div class="nav-bar">
         <div class="nav-item active" data-page="home"><i class="fas fa-home"></i>Home</div>
         <div class="nav-item" data-page="gymlog"><i class="fas fa-dumbbell"></i>Gym</div>
         <div class="nav-item" data-page="calories"><i class="fas fa-utensils"></i>Food</div>
         <div class="nav-item" data-page="weight"><i class="fas fa-weight-scale"></i>Weight</div>
+        <div class="nav-item" data-page="progress"><i class="fas fa-chart-line"></i>Progress</div>
         <div class="nav-item" data-page="calendar"><i class="fas fa-calendar"></i>Streak</div>
     </div>
 
     <!-- pages -->
     <div class="pages">
-        <!-- HOME -->
+        <!-- HOME - now with daily tip only -->
         <div class="page active-page" id="page-home">
             <div class="card">
                 <div class="card-title"><i class="fas fa-chart-pie"></i> today's summary</div>
                 <div class="stats-mini"><i class="fas fa-dumbbell"></i> <span>exercises</span> <span id="todayExercises">0</span></div>
-                <div class="stats-mini"><i class="fas fa-fire"></i> <span>calories</span> <span id="todayCalories">0</span> / <span id="calGoal">2200</span></div>
-                <div class="stats-mini"><i class="fas fa-droplet"></i> <span>protein</span> <span id="todayProtein">0</span>g / 140g</div>
+                <div class="stats-mini"><i class="fas fa-fire"></i> <span>calories in</span> <span id="todayCalories">0</span> / <span id="calGoal">2200</span></div>
+                <div class="stats-mini"><i class="fas fa-bolt"></i> <span>calories burned</span> <span id="todayBurned">0</span></div>
+                <div class="net-calories" id="netCalories">net: 0 kcal</div>
+                <div class="stats-mini"><i class="fas fa-droplet"></i> <span>protein</span> <span id="todayProtein">0</span>g / <span id="proteinGoalDisplay">140</span>g</div>
                 <div class="stats-mini"><i class="fas fa-weight-scale"></i> <span>last weight</span> <span id="lastWeight">—</span> kg</div>
             </div>
-            <div class="card" id="tipCard">
-                <div class="card-title"><i class="fas fa-lightbulb"></i> tip of the day</div>
+            <div class="card tip-card" id="tipCard">
+                <div class="card-title"><i class="fas fa-lightbulb"></i> daily tip</div>
                 <div id="dailyTip">Log your workout to stay consistent</div>
             </div>
         </div>
 
-        <!-- GYM LOG - fixed input sizes -->
+        <!-- GYM LOG -->
         <div class="page" id="page-gymlog">
             <div class="card">
                 <div class="card-title"><i class="fas fa-dumbbell"></i> log exercise</div>
@@ -724,11 +787,16 @@
             <div class="card">
                 <div class="card-title"><i class="fas fa-list"></i> today's workout</div>
                 <div id="gymLogList"><div class="workout-log-entry">no exercises logged</div></div>
+                <div class="stats-mini" style="margin-top: 0.5rem;">
+                    <i class="fas fa-bolt" style="color: var(--icon-green);"></i> 
+                    <span>total calories burned</span> 
+                    <span id="totalBurnedDisplay">0</span>
+                </div>
                 <button class="btn-secondary" id="clearGymBtn"><i class="fas fa-rotate-left"></i> clear today</button>
             </div>
         </div>
 
-        <!-- CALORIES PAGE - fixed input sizes -->
+        <!-- CALORIES PAGE -->
         <div class="page" id="page-calories">
             <div class="card">
                 <div class="card-title"><i class="fas fa-utensils"></i> add food</div>
@@ -749,21 +817,34 @@
                 <button class="btn-primary" id="addFoodBtn"><i class="fas fa-plus"></i> add food</button>
             </div>
             
-            <!-- Calorie Limit Editor - perfect alignment -->
+            <!-- Calorie Limit Editor -->
             <div class="card">
                 <div class="card-title"><i class="fas fa-bullseye"></i> daily calorie limit</div>
                 <div class="inline-input-group">
-                    <input type="number" id="calorieLimitInput" value="2200" step="50" min="500" max="5000" placeholder="Enter limit">
+                    <input type="number" id="calorieLimitInput" value="2200" step="50" min="500" max="5000" placeholder="Calorie limit">
                     <button id="setCalorieLimitBtn">set</button>
                 </div>
-                <div class="limit-display" id="currentLimitDisplay">2200 kcal</div>
+                <div class="limit-display" id="currentCalorieLimitDisplay">2200 kcal</div>
+            </div>
+
+            <!-- Protein Limit Editor -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-droplet"></i> daily protein limit (g)</div>
+                <div class="inline-input-group">
+                    <input type="number" id="proteinLimitInput" value="140" step="5" min="20" max="500" placeholder="Protein goal">
+                    <button id="setProteinLimitBtn">set</button>
+                </div>
+                <div class="limit-display" id="currentProteinLimitDisplay">140 g</div>
             </div>
 
             <div class="card">
                 <div class="card-title"><i class="fas fa-chart-simple"></i> daily totals</div>
-                <div class="stats-mini"><i class="fas fa-fire"></i> <span>calories</span> <span id="totalCals">0</span> / <span id="calGoalDisplay">2200</span></div>
+                <div class="stats-mini"><i class="fas fa-fire"></i> <span>calories in</span> <span id="totalCals">0</span> / <span id="calGoalDisplay">2200</span></div>
                 <div class="progress-bar"><div class="progress-fill" id="calProgress" style="width:0%"></div></div>
-                <div class="stats-mini"><i class="fas fa-droplet"></i> <span>protein</span> <span id="totalProtein">0</span>g / 140g</div>
+                <div class="stats-mini"><i class="fas fa-bolt" style="color: var(--icon-green);"></i> <span>calories burned</span> <span id="totalBurnedCalories">0</span></div>
+                <div class="progress-bar"><div class="progress-burn-fill" id="burnProgress" style="width:0%"></div></div>
+                <div class="net-calories" id="netCaloriesFood">net: 0 kcal</div>
+                <div class="stats-mini"><i class="fas fa-droplet"></i> <span>protein</span> <span id="totalProtein">0</span>g / <span id="proteinGoalDisplay2">140</span>g</div>
                 <div class="progress-bar"><div class="progress-fill" id="proteinProgress" style="width:0%"></div></div>
             </div>
             <div class="card">
@@ -773,7 +854,7 @@
             </div>
         </div>
 
-        <!-- WEIGHT TRACKING - fixed input sizes -->
+        <!-- WEIGHT TRACKING -->
         <div class="page" id="page-weight">
             <div class="card">
                 <div class="card-title"><i class="fas fa-weight-scale"></i> log your weight</div>
@@ -802,6 +883,37 @@
                 <div class="card-title"><i class="fas fa-list"></i> recent weigh-ins</div>
                 <div id="weightLogList"><div class="weight-entry">no data</div></div>
                 <button class="btn-secondary" id="resetWeightBtn"><i class="fas fa-rotate-left"></i> reset all</button>
+            </div>
+        </div>
+
+        <!-- PROGRESS SUMMARY PAGE - NEW -->
+        <div class="page" id="page-progress">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-line"></i> your progress summary</div>
+                <div id="progressStatus" class="progress-status status-good">🌟 Doing Great!</div>
+                <div class="advice-text" id="progressAdvice">
+                    You're on track! Keep up the consistent work.
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title"><i class="fas fa-calendar-check"></i> weekly overview</div>
+                <div class="stats-mini"><i class="fas fa-dumbbell"></i> <span>workouts this week</span> <span id="weeklyWorkouts">0</span></div>
+                <div class="stats-mini"><i class="fas fa-fire"></i> <span>avg daily calories in</span> <span id="avgCaloriesIn">0</span></div>
+                <div class="stats-mini"><i class="fas fa-bolt"></i> <span>avg daily calories burned</span> <span id="avgCaloriesBurned">0</span></div>
+                <div class="stats-mini"><i class="fas fa-droplet"></i> <span>avg daily protein</span> <span id="avgProtein">0</span>g</div>
+                <div class="stats-mini"><i class="fas fa-weight-scale"></i> <span>weight change (7d)</span> <span id="weightChange">0</span> kg</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title"><i class="fas fa-tasks"></i> recommendations</div>
+                <div id="recommendationsList">
+                    <ul style="margin-left: 1.5rem; color: var(--text-secondary);">
+                        <li id="rec1">Log your meals consistently</li>
+                        <li id="rec2">Aim for 3-4 workouts per week</li>
+                        <li id="rec3">Try to hit your protein goal daily</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -857,60 +969,125 @@
             }
         });
 
+        // ---------- TIPS - DAILY TIP (changes once per day) ----------
+        const tips = [
+            "Log your meals to stay aware of your intake",
+            "Protein after workout helps muscle recovery",
+            "Drink water before meals to control portions",
+            "Rest days are essential for muscle growth",
+            "Consistency beats intensity every time",
+            "Track calories burned vs consumed for weight control",
+            "Aim for a moderate calorie deficit for healthy weight loss",
+            "Strength training boosts your metabolism",
+            "Get 7-9 hours of sleep for optimal recovery",
+            "Plan your meals ahead to avoid unhealthy choices",
+            "Walking 8,000 steps daily improves overall health",
+            "Eat protein with every meal to stay full longer",
+            "Don't skip breakfast - it fuels your day",
+            "Variety in exercise prevents boredom and plateaus",
+            "Listen to your body - avoid overtraining"
+        ];
+
+        function getDailyTip() {
+            const today = new Date().toDateString(); // Gets current date without time
+            const storedTipDate = localStorage.getItem('tipDate');
+            const storedTip = localStorage.getItem('dailyTip');
+            
+            // If we have a tip from today, use it
+            if (storedTipDate === today && storedTip) {
+                return storedTip;
+            }
+            
+            // Otherwise, generate a new tip for today
+            // Use date to get consistent index for the day (changes daily)
+            const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+            const tipIndex = dayOfYear % tips.length;
+            const newTip = tips[tipIndex];
+            
+            // Save to localStorage
+            localStorage.setItem('tipDate', today);
+            localStorage.setItem('dailyTip', newTip);
+            
+            return newTip;
+        }
+
         // ---------- STATE - ALL START EMPTY (NO DEMO DATA) ----------
         let workouts = new Set();           // Dates of gym days (YYYY-MM-DD)
         let gymLog = [];                    // Exercises logged
         let foodLog = [];                    // Food entries
         let weightLog = [];                   // Weight measurements
         let calorieLimit = 2200;               // Default calorie limit
+        let proteinLimit = 140;                // Default protein limit
 
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
-
-        const PROTEIN_GOAL = 140;
 
         // --- helpers ---
         function dateKey(y,m,d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
         function todayKey() { let d = new Date(); return dateKey(d.getFullYear(), d.getMonth(), d.getDate()); }
         function getTodayString() { let d = new Date(); return d.toISOString().slice(0,10); }
 
-        // --- LOAD FROM STORAGE (if exists, otherwise keep empty) ---
+        // --- CALORIE BURN ESTIMATION ---
+        function estimateCaloriesBurned(weight, sets, reps) {
+            if (!weight || !sets || !reps) return 0;
+            const totalReps = sets * reps;
+            return Math.round(weight * totalReps * 0.08);
+        }
+
+        // Calculate total burned calories for a given date
+        function getTotalBurnedForDate(date) {
+            const dayExercises = gymLog.filter(e => e.date === date);
+            return dayExercises.reduce((sum, ex) => {
+                return sum + estimateCaloriesBurned(ex.weight, ex.sets, ex.reps);
+            }, 0);
+        }
+
+        // --- LOAD FROM STORAGE ---
         function loadAll() {
             // Load calorie limit
-            const savedLimit = localStorage.getItem('calorieLimit');
-            if (savedLimit) {
-                calorieLimit = parseInt(savedLimit, 10);
+            const savedCalorieLimit = localStorage.getItem('calorieLimit');
+            if (savedCalorieLimit) {
+                calorieLimit = parseInt(savedCalorieLimit, 10);
             } else {
                 calorieLimit = 2200;
                 localStorage.setItem('calorieLimit', calorieLimit);
             }
 
+            // Load protein limit
+            const savedProteinLimit = localStorage.getItem('proteinLimit');
+            if (savedProteinLimit) {
+                proteinLimit = parseInt(savedProteinLimit, 10);
+            } else {
+                proteinLimit = 140;
+                localStorage.setItem('proteinLimit', proteinLimit);
+            }
+
             // Load workouts (gym days)
-            const storedWorkouts = localStorage.getItem('zerostart_workouts');
+            const storedWorkouts = localStorage.getItem('progress_workouts');
             if (storedWorkouts) workouts = new Set(JSON.parse(storedWorkouts));
-            else workouts.clear(); // ensure empty
+            else workouts.clear();
 
             // Load gym exercises
-            const storedGym = localStorage.getItem('zerostart_gymlog');
+            const storedGym = localStorage.getItem('progress_gymlog');
             if (storedGym) gymLog = JSON.parse(storedGym);
             else gymLog = [];
 
             // Load food entries
-            const storedFood = localStorage.getItem('zerostart_foodlog');
+            const storedFood = localStorage.getItem('progress_foodlog');
             if (storedFood) foodLog = JSON.parse(storedFood);
             else foodLog = [];
 
             // Load weight history
-            const storedWeight = localStorage.getItem('zerostart_weightlog');
+            const storedWeight = localStorage.getItem('progress_weightlog');
             if (storedWeight) weightLog = JSON.parse(storedWeight);
             else weightLog = [];
         }
 
-        // --- SAVE TO STORAGE (called after every change) ---
-        function saveWorkouts() { localStorage.setItem('zerostart_workouts', JSON.stringify([...workouts])); }
-        function saveGymLog() { localStorage.setItem('zerostart_gymlog', JSON.stringify(gymLog)); }
-        function saveFoodLog() { localStorage.setItem('zerostart_foodlog', JSON.stringify(foodLog)); }
-        function saveWeightLog() { localStorage.setItem('zerostart_weightlog', JSON.stringify(weightLog)); }
+        // --- SAVE TO STORAGE ---
+        function saveWorkouts() { localStorage.setItem('progress_workouts', JSON.stringify([...workouts])); }
+        function saveGymLog() { localStorage.setItem('progress_gymlog', JSON.stringify(gymLog)); }
+        function saveFoodLog() { localStorage.setItem('progress_foodlog', JSON.stringify(foodLog)); }
+        function saveWeightLog() { localStorage.setItem('progress_weightlog', JSON.stringify(weightLog)); }
 
         // --- streak calculation ---
         function getStreak() {
@@ -937,11 +1114,16 @@
             let todayFoods = foodLog.filter(f => f.date === today);
             let todayCals = todayFoods.reduce((sum, f) => sum + (f.calories || 0), 0);
             let todayProtein = todayFoods.reduce((sum, f) => sum + (f.protein || 0), 0);
+            let todayBurned = getTotalBurnedForDate(today);
+            let netCalories = todayCals - todayBurned;
 
             document.getElementById('todayExercises').innerText = todayExercises;
             document.getElementById('todayCalories').innerText = todayCals;
             document.getElementById('calGoal').innerText = calorieLimit;
+            document.getElementById('todayBurned').innerText = todayBurned;
             document.getElementById('todayProtein').innerText = todayProtein;
+            document.getElementById('proteinGoalDisplay').innerText = proteinLimit;
+            document.getElementById('netCalories').innerText = `net: ${netCalories} kcal`;
             
             if (weightLog.length) {
                 let sorted = [...weightLog].sort((a,b)=>a.date.localeCompare(b.date));
@@ -949,6 +1131,9 @@
             } else {
                 document.getElementById('lastWeight').innerText = '—';
             }
+            
+            // Update daily tip (only changes daily)
+            document.getElementById('dailyTip').innerText = getDailyTip();
         }
 
         // --- gym log render ---
@@ -960,10 +1145,14 @@
                 html = '<div class="workout-log-entry">no exercises logged</div>';
             } else {
                 todaysGym.forEach(ex => {
-                    html += `<div class="workout-log-entry"><span>${ex.name}</span> <span>${ex.weight}kg · ${ex.sets}x${ex.reps}</span></div>`;
+                    let burned = estimateCaloriesBurned(ex.weight, ex.sets, ex.reps);
+                    html += `<div class="workout-log-entry"><span>${ex.name}</span> <span>${ex.weight}kg · ${ex.sets}x${ex.reps} · 🔥 ${burned} kcal</span></div>`;
                 });
             }
             document.getElementById('gymLogList').innerHTML = html;
+            
+            let totalBurned = getTotalBurnedForDate(today);
+            document.getElementById('totalBurnedDisplay').innerText = totalBurned;
         }
 
         // --- food log render ---
@@ -972,12 +1161,18 @@
             let todaysFood = foodLog.filter(f => f.date === today);
             let totalCals = todaysFood.reduce((sum, f) => sum + (f.calories || 0), 0);
             let totalProtein = todaysFood.reduce((sum, f) => sum + (f.protein || 0), 0);
+            let totalBurned = getTotalBurnedForDate(today);
+            let netCalories = totalCals - totalBurned;
             
             document.getElementById('totalCals').innerText = totalCals;
             document.getElementById('totalProtein').innerText = totalProtein;
+            document.getElementById('totalBurnedCalories').innerText = totalBurned;
             document.getElementById('calGoalDisplay').innerText = calorieLimit;
+            document.getElementById('proteinGoalDisplay2').innerText = proteinLimit;
             document.getElementById('calProgress').style.width = Math.min(100, (totalCals/calorieLimit)*100) + '%';
-            document.getElementById('proteinProgress').style.width = Math.min(100, (totalProtein/PROTEIN_GOAL)*100) + '%';
+            document.getElementById('burnProgress').style.width = Math.min(100, (totalBurned/calorieLimit)*100) + '%';
+            document.getElementById('proteinProgress').style.width = Math.min(100, (totalProtein/proteinLimit)*100) + '%';
+            document.getElementById('netCaloriesFood').innerText = `net: ${netCalories} kcal`;
 
             let html = '';
             if (todaysFood.length === 0) {
@@ -1098,7 +1293,123 @@
             });
         }
 
-        // --- event listeners with auto-save ---
+        // --- PROGRESS SUMMARY ANALYSIS (NEW) ---
+        function updateProgressSummary() {
+            // Get last 7 days of data
+            const today = new Date();
+            const sevenDaysAgo = new Date(today);
+            sevenDaysAgo.setDate(today.getDate() - 7);
+            
+            let workoutCount = 0;
+            let totalCaloriesIn = 0;
+            let totalCaloriesBurned = 0;
+            let totalProtein = 0;
+            let daysWithData = 0;
+            
+            // Iterate through last 7 days
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(sevenDaysAgo);
+                date.setDate(sevenDaysAgo.getDate() + i);
+                const dateStr = dateKey(date.getFullYear(), date.getMonth(), date.getDate());
+                
+                // Check if workout day
+                if (workouts.has(dateStr)) workoutCount++;
+                
+                // Get food for that day
+                const dayFood = foodLog.filter(f => f.date === dateStr);
+                if (dayFood.length > 0) {
+                    daysWithData++;
+                    totalCaloriesIn += dayFood.reduce((sum, f) => sum + (f.calories || 0), 0);
+                    totalProtein += dayFood.reduce((sum, f) => sum + (f.protein || 0), 0);
+                }
+                
+                // Get burned calories
+                totalCaloriesBurned += getTotalBurnedForDate(dateStr);
+            }
+            
+            const avgCaloriesIn = daysWithData > 0 ? Math.round(totalCaloriesIn / daysWithData) : 0;
+            const avgCaloriesBurned = Math.round(totalCaloriesBurned / 7);
+            const avgProtein = daysWithData > 0 ? Math.round(totalProtein / daysWithData) : 0;
+            
+            // Weight change
+            let weightChange = 0;
+            if (weightLog.length >= 2) {
+                const sortedWeight = [...weightLog].sort((a,b)=>a.date.localeCompare(b.date));
+                const oldestWeight = sortedWeight[0].weight;
+                const newestWeight = sortedWeight[sortedWeight.length-1].weight;
+                weightChange = (newestWeight - oldestWeight).toFixed(1);
+            }
+            
+            // Update weekly overview
+            document.getElementById('weeklyWorkouts').innerText = workoutCount;
+            document.getElementById('avgCaloriesIn').innerText = avgCaloriesIn;
+            document.getElementById('avgCaloriesBurned').innerText = avgCaloriesBurned;
+            document.getElementById('avgProtein').innerText = avgProtein;
+            document.getElementById('weightChange').innerText = weightChange;
+            
+            // Determine progress status and advice
+            const statusEl = document.getElementById('progressStatus');
+            const adviceEl = document.getElementById('progressAdvice');
+            
+            let score = 0;
+            let maxScore = 5;
+            
+            // Workout consistency (2 points)
+            if (workoutCount >= 4) score += 2;
+            else if (workoutCount >= 2) score += 1;
+            
+            // Calorie balance (1 point)
+            const avgNetCalories = avgCaloriesIn - avgCaloriesBurned;
+            if (avgNetCalories < 0 && avgNetCalories > -500) score += 1; // Good deficit
+            
+            // Protein intake (1 point)
+            if (avgProtein >= proteinLimit * 0.8) score += 1;
+            
+            // Weight trend (1 point)
+            if (weightChange < 0) score += 1; // Losing weight
+            
+            // Status and advice
+            if (score >= 4) {
+                statusEl.className = 'progress-status status-good';
+                statusEl.innerHTML = '🌟 Excellent Progress!';
+                adviceEl.innerHTML = 'You\'re doing fantastic! Your consistency is paying off. Keep maintaining this great routine. Consider challenging yourself with new goals.';
+            } else if (score >= 2) {
+                statusEl.className = 'progress-status status-average';
+                statusEl.innerHTML = '📊 Good Progress, Room to Grow';
+                adviceEl.innerHTML = 'You\'re on the right track! With a few adjustments, you can reach the next level.';
+            } else {
+                statusEl.className = 'progress-status status-poor';
+                statusEl.innerHTML = '⚠️ Needs Improvement';
+                adviceEl.innerHTML = 'Every journey starts with a single step. Focus on building consistency first.';
+            }
+            
+            // Update recommendations
+            const rec1 = document.getElementById('rec1');
+            const rec2 = document.getElementById('rec2');
+            const rec3 = document.getElementById('rec3');
+            
+            if (workoutCount < 3) {
+                rec1.innerHTML = '🏋️ Aim for 3-4 workouts per week - start with 2 and build up';
+            } else {
+                rec1.innerHTML = '✅ Great workout consistency! Try increasing intensity or trying new exercises';
+            }
+            
+            if (avgProtein < proteinLimit * 0.7) {
+                rec2.innerHTML = '🥩 Increase protein intake - aim for ' + proteinLimit + 'g daily for better recovery';
+            } else {
+                rec2.innerHTML = '✅ Good protein intake! You\'re supporting muscle recovery well';
+            }
+            
+            if (avgNetCalories > 0 && weightChange >= 0) {
+                rec3.innerHTML = '⚖️ Consider a slight calorie deficit for weight loss - focus on whole foods';
+            } else if (avgNetCalories < -500) {
+                rec3.innerHTML = '⚠️ Your calorie deficit might be too aggressive - aim for moderate deficit of 300-500 kcal';
+            } else {
+                rec3.innerHTML = '✅ Your calorie balance looks good for your goals';
+            }
+        }
+
+        // --- event listeners ---
         document.getElementById('addExerciseBtn').addEventListener('click', () => {
             let name = document.getElementById('exName').value.trim() || 'exercise';
             let weight = parseFloat(document.getElementById('exWeight').value) || 0;
@@ -1117,8 +1428,8 @@
             updateHomeSummary();
             renderCalendar();
             updateStreakUI();
+            renderFoodLog();
             
-            // Clear only the name field, keep numbers for quick re-entry
             document.getElementById('exName').value = '';
         });
 
@@ -1128,6 +1439,7 @@
             saveGymLog();
             renderGymLog();
             updateHomeSummary();
+            renderFoodLog();
         });
 
         document.getElementById('addFoodBtn').addEventListener('click', () => {
@@ -1143,7 +1455,6 @@
             updateHomeSummary();
             
             document.getElementById('foodName').value = '';
-            // Keep calorie and protein values as-is for quick re-entry
         });
 
         document.getElementById('clearFoodBtn').addEventListener('click', () => {
@@ -1161,13 +1472,30 @@
             if (newLimit && newLimit >= 500 && newLimit <= 5000) {
                 calorieLimit = newLimit;
                 localStorage.setItem('calorieLimit', calorieLimit);
-                document.getElementById('currentLimitDisplay').innerText = calorieLimit + ' kcal';
+                document.getElementById('currentCalorieLimitDisplay').innerText = calorieLimit + ' kcal';
                 document.getElementById('calGoal').innerText = calorieLimit;
                 document.getElementById('calGoalDisplay').innerText = calorieLimit;
                 renderFoodLog();
                 updateHomeSummary();
             } else {
                 alert('Please enter a limit between 500 and 5000 calories');
+            }
+        });
+
+        // Protein limit editor
+        document.getElementById('setProteinLimitBtn').addEventListener('click', () => {
+            const input = document.getElementById('proteinLimitInput');
+            const newLimit = parseInt(input.value, 10);
+            if (newLimit && newLimit >= 20 && newLimit <= 500) {
+                proteinLimit = newLimit;
+                localStorage.setItem('proteinLimit', proteinLimit);
+                document.getElementById('currentProteinLimitDisplay').innerText = proteinLimit + ' g';
+                document.getElementById('proteinGoalDisplay').innerText = proteinLimit;
+                document.getElementById('proteinGoalDisplay2').innerText = proteinLimit;
+                renderFoodLog();
+                updateHomeSummary();
+            } else {
+                alert('Please enter a limit between 20 and 500 grams');
             }
         });
 
@@ -1180,7 +1508,6 @@
                 return;
             }
             
-            // Remove existing entry for same date
             weightLog = weightLog.filter(w => w.date !== dateInput);
             weightLog.push({ date: dateInput, weight });
             saveWeightLog();
@@ -1238,19 +1565,6 @@
             alert(`Streak: ${getStreak()} days · total gym days: ${workouts.size}`);
         });
 
-        // tip rotation
-        const tips = [
-            "Log your meals to stay aware",
-            "Protein after workout helps recovery",
-            "Drink water before meals",
-            "Rest is part of the plan",
-            "Consistency beats intensity"
-        ];
-        setInterval(() => {
-            let r = tips[Math.floor(Math.random() * tips.length)];
-            document.getElementById('dailyTip').innerText = r;
-        }, 8000);
-
         // navigation
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
@@ -1265,13 +1579,18 @@
                 if (item.dataset.page === 'home') updateHomeSummary();
                 if (item.dataset.page === 'gymlog') renderGymLog();
                 if (item.dataset.page === 'calories') {
-                    document.getElementById('currentLimitDisplay').innerText = calorieLimit + ' kcal';
+                    document.getElementById('currentCalorieLimitDisplay').innerText = calorieLimit + ' kcal';
                     document.getElementById('calorieLimitInput').value = calorieLimit;
+                    document.getElementById('currentProteinLimitDisplay').innerText = proteinLimit + ' g';
+                    document.getElementById('proteinLimitInput').value = proteinLimit;
                     renderFoodLog();
                 }
                 if (item.dataset.page === 'weight') {
                     renderWeightLog();
                     renderWeightChart();
+                }
+                if (item.dataset.page === 'progress') {
+                    updateProgressSummary();
                 }
             });
         });
@@ -1279,7 +1598,7 @@
         // Set default date for weight input to today
         document.getElementById('weightDate').value = getTodayString();
 
-        // --- INITIALIZE: Load from storage, then render UI ---
+        // --- INITIALIZE ---
         loadAll();
         
         // Update all UI
@@ -1290,9 +1609,14 @@
         renderCalendar();
         updateStreakUI();
         
-        // Set calorie limit display
-        document.getElementById('currentLimitDisplay').innerText = calorieLimit + ' kcal';
+        // Set limit displays
+        document.getElementById('currentCalorieLimitDisplay').innerText = calorieLimit + ' kcal';
         document.getElementById('calorieLimitInput').value = calorieLimit;
+        document.getElementById('currentProteinLimitDisplay').innerText = proteinLimit + ' g';
+        document.getElementById('proteinLimitInput').value = proteinLimit;
+        
+        // Set daily tip
+        document.getElementById('dailyTip').innerText = getDailyTip();
     })();
 </script>
 </body>
